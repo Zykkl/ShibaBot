@@ -1,46 +1,32 @@
-const {
-	Client,
-	MessageEmbed,
-} = require('discord.js');
-const {
-	prefix,
-	token,
-} = require('./config.json');
-const client = new Client({
-	intents: ['GUILDS', 'GUILD_MESSAGES'],
-});
-const fetch = require('node-fetch').default;
+import {} from 'dotenv/config'
+import Eris from 'eris'
+const bot = new Eris(process.env.TOKEN)
 const ENDPOINTS = {
-	shiba: 'http://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true',
-};
-
-client.once('ready', () => {
-	console.log('Ready!');
+    shiba: 'http://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true',
+}
+import fetch from 'node-fetch';
+bot.on("ready", () => {
+    console.log("Ready!")
 });
 
-// commands
-client.on('message', message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
-
-	const args = message.content.slice(prefix.length).trim().split(/ +/);
-	const command = args.shift().toLowerCase();
-	const channel = client.channels.cache.get(message.channel.id);
-	if (command === 'shiba') {
-		fetch(ENDPOINTS.shiba, {
-			method: 'GET',
-		})
-			.then(res => res.json())
-			.then(([data]) => {
-				const embed = new MessageEmbed()
-					.setColor('#E67E22')
-					.setImage(data)
-					.setTitle('Shiba!')
-					.setURL(data);
-				channel.send({
-					embeds: [embed],
-				});
-			});
-	}
-});
-
-client.login(token);
+bot.on("messageCreate", (msg => {
+    if (msg.content === "s.shiba") {
+        fetch(ENDPOINTS.shiba, {
+                method: 'GET',
+            })
+            .then(res => res.json())
+            .then(([data]) => {
+                bot.createMessage(msg.channel.id, {
+                    embed: {
+                        title: "Shiba!",
+                        url: data.url,
+                        color: 0xE67E22,
+                        image: {
+                            url: data
+                        }
+                    }
+                })
+            })
+    }
+}))
+bot.connect()
