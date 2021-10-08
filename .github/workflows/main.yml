@@ -18,4 +18,4 @@ jobs:
           useforce: true,
           dynamicFiles: true,
           procfile: "worker: node bot.js"
-          buildpacks: "['https://github.com/heroku/heroku-buildpack-nodejs.git','https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git']"
+          buildpacks: "['https://github.com/heroku/heroku-buildpack-nodejs.git']"
