@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: CDNievas/heroku-action@v1.0 # This is the action
+        with:
+          heroku_email: "alex.zykl@pm.me"
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "zykkl-shibabot"
+          useforce: true,
+          dynamicFiles: true,
+          procfile: "worker: node bot.js"
+          buildpacks: "['https://github.com/heroku/heroku-buildpack-nodejs.git','https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git']"
