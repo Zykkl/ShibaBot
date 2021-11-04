@@ -84,7 +84,6 @@ bot.on("messageCreate", (msg => {
 	if (msg.content === "s.ping") {
 		bot.createMessage(msg.channel.id, "Pinging...").then(m => {
 			var ping = m.timestamp - msg.timestamp;
-			var botPing = m.timestamp - bot.timestamp;
 
 			bot.editMessage(msg.channel.id, m.id, {
 				content: "",
@@ -92,10 +91,7 @@ bot.on("messageCreate", (msg => {
 					title: "Pong!",
 					color: 0xE67E22,
 					fields: [{
-						name: "Bot Ping",
-						value: botPing + "ms"
-					}, {
-						name: "Message Ping",
+						name: "Ping",
 						value: ping + "ms"
 					}]
 				}
