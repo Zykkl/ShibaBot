@@ -1,15 +1,33 @@
+// imports
 import {} from 'dotenv/config'
 import Eris from 'eris'
 import fetch from 'node-fetch';
+import {
+	RateLimiter
+} from 'discord.js-rate-limiter';
+
+// variables
 const bot = new Eris(process.env.TOKEN)
 const ENDPOINTS = {
 	shiba: 'http://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true',
 	cat: 'http://shibe.online/api/cats?count=1&urls=true&httpsUrls=true',
 	bird: 'http://shibe.online/api/birds?count=1&urls=true&httpsUrls=true'
 }
+const blocked = [];
+const warn1 = [];
+const warn2 = [];
+const warn3 = [];
+let rateLimiter = new RateLimiter(1, 2000);
+
+// bot stuff
 bot.on("ready", () => {
 	console.log("Ready!")
 });
+
+bot.editStatus(process.env.STATUS, {
+	type: 2,
+	name: process.env.STATUS_MESSAGE
+})
 
 function checkMaintenance() {
 	if (process.env.STATUS == 'idle') {
@@ -17,12 +35,13 @@ function checkMaintenance() {
 	}
 }
 
-bot.editStatus(process.env.STATUS, {
-	type: 2,
-	name: process.env.STATUS_MESSAGE
-})
-
 bot.on("messageCreate", (msg => {
+	let limited = rateLimiter.take(msg.author.id);
+	if (limited && msg.content.startsWith(process.env.PREFIX)) {
+		bot.createMessage(msg.channel.id, "You\'re doing that do often, please try again later!");
+		console.log(`${msg.author.username} tried to use a command too often!`);
+		return;
+	}
 	if (msg.author.id === bot.user.id) {
 		return;
 	} else
