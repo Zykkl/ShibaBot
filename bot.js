@@ -1,7 +1,8 @@
 import {} from 'dotenv/config'
 import Eris from 'eris'
-const bot = new Eris(process.env.TOKEN)
 import fetch from 'node-fetch';
+const bot = new Eris(process.env.TOKEN)
+import * as fs from 'fs/promises';
 const ENDPOINTS = {
 	shiba: 'http://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true',
 	cat: 'http://shibe.online/api/cats?count=1&urls=true&httpsUrls=true',
@@ -22,11 +23,20 @@ bot.editStatus(process.env.STATUS, {
 	name: process.env.STATUS_MESSAGE
 })
 
-
 bot.on("messageCreate", (msg => {
-	if (msg.author.id === bot.user.id)
+	if (msg.author.id === bot.user.id) {
 		return;
-	if (checkMaintenance() === true) {
+	}
+	fs.readFile('blocked.txt', function (err, data) {
+		if (err) {
+			throw err;
+		}
+		if (data.includes(msg.author.id)) {
+			bot.createMessage(msg.channel.id, "Zy banned you from using my commands. If you think your ban isn\'t justified, consider contacting Zy through Discord (Zyy#1702).")
+			return
+		}
+	})
+	if (msg.content.startsWith(process.env.PREFIX) && checkMaintenance() === true) {
 		bot.createMessage(msg.channel.id, "Bot currently under maintenance. Please try again later.")
 		return;
 	} else
