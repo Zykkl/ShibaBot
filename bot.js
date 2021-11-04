@@ -1,12 +1,12 @@
 import {} from 'dotenv/config'
 import Eris from 'eris'
 const bot = new Eris(process.env.TOKEN)
+import fetch from 'node-fetch';
 const ENDPOINTS = {
 	shiba: 'http://shibe.online/api/shibes?count=1&urls=true&httpsUrls=true',
 	cat: 'http://shibe.online/api/cats?count=1&urls=true&httpsUrls=true',
 	bird: 'http://shibe.online/api/birds?count=1&urls=true&httpsUrls=true'
 }
-import fetch from 'node-fetch';
 bot.on("ready", () => {
 	console.log("Ready!")
 });
@@ -143,6 +143,24 @@ bot.on("messageCreate", (msg => {
 					}
 				})
 			})
+	}
+	if (msg.content === "s.help") {
+		bot.createMessage(msg.channel.id, {
+			embed: {
+				title: "ShibaBot Commands",
+				color: 0xE67E22,
+				fields: [{
+					name: "s.shiba",
+					value: "Gets a random shiba picture."
+				}, {
+					name: "s.bird",
+					value: "Gets a random bird picture."
+				}, {
+					name: "s.cat",
+					value: "Gets a random cat picture."
+				}]
+			}
+		})
 	}
 }))
 bot.connect()
