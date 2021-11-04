@@ -24,11 +24,14 @@ bot.editStatus(process.env.STATUS, {
 
 
 bot.on("messageCreate", (msg => {
+	if (msg.author.id === bot.user.id)
+		return;
+	if (checkMaintenance() === true) {
+		bot.createMessage(msg.channel.id, "Bot currently under maintenance. Please try again later.")
+		return;
+	} else
 	if (msg.content === "s.shiba") {
-		if (checkMaintenance(msg) === true) {
-			bot.createMessage(msg.channel.id, "Bot currently under maintenance. Please try again later.")
-		} else
-			fetch(ENDPOINTS.shiba, {
+		fetch(ENDPOINTS.shiba, {
 				method: 'GET',
 			})
 			.then(res => res.json())
@@ -45,10 +48,7 @@ bot.on("messageCreate", (msg => {
 			})
 	}
 	if (msg.content === "s.bird") {
-		if (checkMaintenance(msg) === true) {
-			bot.createMessage(msg.channel.id, "Bot currently under maintenance. Please try again later.")
-		} else
-			fetch(ENDPOINTS.bird, {
+		fetch(ENDPOINTS.bird, {
 				method: 'GET',
 			})
 			.then(res => res.json())
@@ -65,10 +65,7 @@ bot.on("messageCreate", (msg => {
 			})
 	}
 	if (msg.content === "s.cat") {
-		if (checkMaintenance(msg) === true) {
-			bot.createMessage(msg.channel.id, "Bot currently under maintenance. Please try again later.")
-		} else
-			fetch(ENDPOINTS.cat, {
+		fetch(ENDPOINTS.cat, {
 				method: 'GET',
 			})
 			.then(res => res.json())
@@ -84,65 +81,26 @@ bot.on("messageCreate", (msg => {
 				})
 			})
 	}
-	if (msg.content === "s.shiba --bypass") {
-		if (msg.author.id !== process.env.ZYY) {
-			return
-		} else
-			fetch(ENDPOINTS.shiba, {
-				method: 'GET',
+	if (msg.content === "s.ping") {
+		bot.createMessage(msg.channel.id, "Pinging...").then(m => {
+			var ping = m.timestamp - msg.timestamp;
+			var botPing = m.timestamp - bot.timestamp;
+
+			bot.editMessage(msg.channel.id, m.id, {
+				content: "",
+				embed: {
+					title: "Pong!",
+					color: 0xE67E22,
+					fields: [{
+						name: "Bot Ping",
+						value: botPing + "ms"
+					}, {
+						name: "Message Ping",
+						value: ping + "ms"
+					}]
+				}
 			})
-			.then(res => res.json())
-			.then(([data]) => {
-				bot.createMessage(msg.channel.id, {
-					embed: {
-						title: "Shiba!",
-						color: 0xE67E22,
-						image: {
-							url: data
-						}
-					}
-				})
-			})
-	}
-	if (msg.content === "s.bird --bypass") {
-		if (msg.author.id !== process.env.ZYY) {
-			return
-		} else
-			fetch(ENDPOINTS.bird, {
-				method: 'GET',
-			})
-			.then(res => res.json())
-			.then(([data]) => {
-				bot.createMessage(msg.channel.id, {
-					embed: {
-						title: "Bird!",
-						color: 0xE67E22,
-						image: {
-							url: data
-						}
-					}
-				})
-			})
-	}
-	if (msg.content === "s.cat --bypass") {
-		if (msg.author.id !== process.env.ZYY) {
-			return
-		} else
-			fetch(ENDPOINTS.cat, {
-				method: 'GET',
-			})
-			.then(res => res.json())
-			.then(([data]) => {
-				bot.createMessage(msg.channel.id, {
-					embed: {
-						title: "Cat!",
-						color: 0xE67E22,
-						image: {
-							url: data
-						}
-					}
-				})
-			})
+		})
 	}
 	if (msg.content === "s.help") {
 		bot.createMessage(msg.channel.id, {
@@ -158,6 +116,12 @@ bot.on("messageCreate", (msg => {
 				}, {
 					name: "s.cat",
 					value: "Gets a random cat picture."
+				}, {
+					name: "s.ping",
+					value: "Gets the bot's ping."
+				}, {
+					name: "s.help",
+					value: "This message. Duh"
 				}]
 			}
 		})
