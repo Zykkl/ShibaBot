@@ -31,7 +31,7 @@ bot.on("messageCreate", (msg => {
 		if (err) {
 			throw err;
 		}
-		if (data.includes(msg.author.id)) {
+		if (msg.content.startsWith(process.env.PREFIX) && data.includes(msg.author.id)) {
 			bot.createMessage(msg.channel.id, "Zy banned you from using my commands. If you think your ban isn\'t justified, consider contacting Zy through Discord (Zyy#1702).")
 			return
 		}
