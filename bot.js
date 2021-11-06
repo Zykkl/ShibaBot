@@ -13,11 +13,7 @@ const ENDPOINTS = {
 	cat: 'http://shibe.online/api/cats?count=1&urls=true&httpsUrls=true',
 	bird: 'http://shibe.online/api/birds?count=1&urls=true&httpsUrls=true'
 }
-const blocked = [];
-const warn1 = [];
-const warn2 = [];
-const warn3 = [];
-let rateLimiter = new RateLimiter(1, 2000);
+let rateLimiter = new RateLimiter(1, 1000);
 
 // bot stuff
 bot.on("ready", () => {
@@ -29,12 +25,30 @@ bot.editStatus(process.env.STATUS, {
 	name: process.env.STATUS_MESSAGE
 })
 
+// functions
 function checkMaintenance() {
 	if (process.env.STATUS == 'idle') {
 		return true;
 	}
 }
 
+function botFetch(animal, msg) {
+	return fetch(ENDPOINTS[animal])
+		.then(res => res.json())
+		.then(([data]) => {
+			bot.createMessage(msg.channel.id, {
+				embed: {
+					title: `${animal}!`,
+					color: 0xE67E22,
+					image: {
+						url: data
+					}
+				}
+			})
+		})
+}
+
+// the bot
 bot.on("messageCreate", (msg => {
 	let limited = rateLimiter.take(msg.author.id);
 	if (limited && msg.content.startsWith(process.env.PREFIX)) {
@@ -45,60 +59,18 @@ bot.on("messageCreate", (msg => {
 	if (msg.author.id === bot.user.id) {
 		return;
 	} else
-	if (msg.content.startsWith(process.env.PREFIX) && checkMaintenance() === true) {
+	if (msg.content.startsWith(process.env.PREFIX) && checkMaintenance() === true && msg.author.id !== process.env.OWNER) {
 		bot.createMessage(msg.channel.id, "Bot currently under maintenance. Please try again later.")
 		return;
 	} else
 	if (msg.content === "s.shiba") {
-		fetch(ENDPOINTS.shiba, {
-				method: 'GET',
-			})
-			.then(res => res.json())
-			.then(([data]) => {
-				bot.createMessage(msg.channel.id, {
-					embed: {
-						title: "Shiba!",
-						color: 0xE67E22,
-						image: {
-							url: data
-						}
-					}
-				})
-			})
+		botFetch('shiba', msg);
 	}
 	if (msg.content === "s.bird") {
-		fetch(ENDPOINTS.bird, {
-				method: 'GET',
-			})
-			.then(res => res.json())
-			.then(([data]) => {
-				bot.createMessage(msg.channel.id, {
-					embed: {
-						title: "Bird!",
-						color: 0xE67E22,
-						image: {
-							url: data
-						}
-					}
-				})
-			})
+		botFetch('bird', msg);
 	}
 	if (msg.content === "s.cat") {
-		fetch(ENDPOINTS.cat, {
-				method: 'GET',
-			})
-			.then(res => res.json())
-			.then(([data]) => {
-				bot.createMessage(msg.channel.id, {
-					embed: {
-						title: "Cat!",
-						color: 0xE67E22,
-						image: {
-							url: data
-						}
-					}
-				})
-			})
+		botFetch('cat', msg);
 	}
 	if (msg.content === "s.ping") {
 		bot.createMessage(msg.channel.id, "Pinging...").then(m => {
